@@ -37,6 +37,7 @@ public class MainFrame2 implements ActionListener
 	JButton confirm, cancel;
 	
 	JFrame frame3;
+	JScrollPane scrollPane = null;
 	JTextArea subjdet;
 	Border raisedbevel = BorderFactory.createRaisedBevelBorder();
 	Border loweredbevel = BorderFactory.createLoweredBevelBorder();
@@ -124,7 +125,7 @@ public class MainFrame2 implements ActionListener
 		update.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame1.dispose();
-				String course = (String) course_choice.getSelectedItem();
+				course = (String) course_choice.getSelectedItem();
 				String sql_query = "select credits from course where name = ? and branch = ?";
 				try {
 					PreparedStatement p2 = con.prepareStatement(sql_query);
@@ -137,7 +138,7 @@ public class MainFrame2 implements ActionListener
 					}
 				}
 				catch(Exception ex) {
-					
+					System.err.println(ex);
 				}
 				coursenamef.setText(course);
 				frame2.setVisible(true);
@@ -153,6 +154,38 @@ public class MainFrame2 implements ActionListener
 		frame1.getContentPane().add(del);
 		frame1.getContentPane().add(prev);
 		frame1.getContentPane().add(subdeets);
+		subdeets.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				subjdet = new JTextArea();
+				String subject_details = null;
+				frame1.dispose();
+				frame2.dispose();
+				try {
+					PreparedStatement p3 = con.prepareStatement("select * from course"
+							+ " where branch = ? and name = ?");
+					p3.setString(1, chosen_b);
+					p3.setString(2, course);
+					ResultSet details = p3.executeQuery();
+					while(details.next()) {
+						String code = (String) details.getString(1);
+						int show_credits = details.getInt(3);
+						subject_details = "Subject Code: " + code + "\nSubject Name: " + 
+						course + "\nSemester: " + chosen_sem + "\nCredits: " + show_credits 
+						+ "\nBranch: " + chosen_b;
+						subjdet.setText(subject_details);
+					}
+					scrollPane = new JScrollPane(subjdet);
+					frame3.add(scrollPane);
+				}
+					catch(Exception ex) {
+						System.err.println(ex);				
+					}
+				frame3.setVisible(true);
+				frame3.setSize(800,200);
+				frame3.setLayout(new GridLayout(5,8));
+			}
+			
+		});
 		
 		
 		frame2 = new JFrame("Update Course Details");
@@ -194,6 +227,10 @@ public class MainFrame2 implements ActionListener
 		frame2.getContentPane().add(confirm);
 		frame2.getContentPane().add(cancel);
 		
+		frame3 = new JFrame("Subject Details");
+// 		subjdet = new JTextArea();
+//		final JScrollPane scrollPane = null;
+		// subjdet.setEditable(false);		
 		//add frame 3, text area with subject details
 		//check total credits add upto 25
 		
@@ -214,6 +251,7 @@ public class MainFrame2 implements ActionListener
 		app.main.setVisible(true);
 		app.frame1.setVisible(false);
 		app.frame2.setVisible(false);
+		app.frame3.setVisible(false);
 	}
 	
 	public void actionPerformed(ActionEvent evt)
@@ -227,28 +265,16 @@ public class MainFrame2 implements ActionListener
 			}
 		}
 		
-//		if(evt.getSource() == update)
-//		{
-//			frame1.dispose();
-//			String course = (String) course_choice.getSelectedItem();
-//			String sem = (String) sem_choice.getSelectedItem();
-//			coursenamef.setText(course);
-//			semesterf.setText(sem);
-//			UpdateDeets();
-//		}
-		
 		if(evt.getSource() == prev)
 		{
 			frame1.dispose();
 			main.setVisible(true);
 		}
-		
-		if(evt.getSource() == subdeets)
-		{
-			frame1.dispose();
-			frame3.setVisible(true);
-			DisplaySubDeets();
-		}
+//		
+//		if(evt.getSource() == subdeets)
+//		{
+//					
+//	}
 		
 		if(evt.getSource() == confirm)
 		{
@@ -269,6 +295,8 @@ public class MainFrame2 implements ActionListener
 							p1.setString(3, chosen_b);
 							int i = p1.executeUpdate();
 							System.out.println("No. of rows affected: " + i);
+							frame2.dispose();
+							frame1.setVisible(true);
 						}	
 						catch(Exception ex) {
 							System.err.println(ex); 
@@ -289,23 +317,11 @@ public class MainFrame2 implements ActionListener
 			frame1.setVisible(true);
 		}
 	}
-
-//	public void courseFrame()
+	
+//	public void DisplaySubDeets()
 //	{
 //		
-//	}
-	
-//	public void UpdateDeets()
-//	{
-//		frame2.setVisible(true);
 //		
 //	}
-	
-	public void DisplaySubDeets()
-	{
-		frame3.setVisible(true);
-		frame3.setSize(800,200);
-		frame3.setLayout(new GridLayout(5,8));
-	}
 
 }
