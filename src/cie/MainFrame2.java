@@ -26,7 +26,7 @@ public class MainFrame2 implements ActionListener
 	String[] courses = null;
 	JComboBox<String> course_choice = null;
 	String course;
-	JButton update,del,prev,subdeets;
+	JButton update,del,prev,subdeets, close;
 	
 	JFrame frame2;
 	JLabel coursenamel,semesterl,credsl;
@@ -102,13 +102,14 @@ public class MainFrame2 implements ActionListener
 				frame1.getContentPane().add(del);
 				frame1.getContentPane().add(prev);
 				frame1.getContentPane().add(subdeets);
+				frame1.getContentPane().add(close);
 				frame1.setVisible(true);
 				frame1.setSize(500,200);
 				frame1.setLayout(null);
 			}
 		});
 		
-		main.getContentPane().add(branchl); 
+		main.getContentPane().add(branchl);  
 		main.getContentPane().add(branch_choice);
 		main.getContentPane().add(seml);
 		main.getContentPane().add(sem_choice);
@@ -126,13 +127,15 @@ public class MainFrame2 implements ActionListener
 //		course_choice = new JComboBox<String>();
 //		course_choice.setBounds(150, 17, 350, 27);
 		update = new JButton("Update");
-		update.setBounds(50, 89, 175, 29);
+		update.setBounds(50, 75, 175, 29);
 		del = new JButton("Delete");
-		del.setBounds(270, 89, 175, 29);
+		del.setBounds(270, 75, 175, 29);
 		prev = new JButton("Previous");
-		prev.setBounds(50, 130, 175, 29);
+		prev.setBounds(50, 115, 175, 29);
 		subdeets = new JButton("Subject Details");
-		subdeets.setBounds(270, 130, 175, 29);
+		subdeets.setBounds(270, 115, 175, 29);
+		close = new JButton("Close");
+		close.setBounds(150, 155, 200, 30);
 		update.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame1.dispose();
@@ -156,39 +159,64 @@ public class MainFrame2 implements ActionListener
 			}
 			
 		});
-		del.addActionListener(this);
-		prev.addActionListener(this);
-		
-		// frame1.getContentPane().add(coursel);
-		// frame1.getContentPane().add(course_choice);
-//		frame1.getContentPane().add(update);
-//		frame1.getContentPane().add(del);
-//		frame1.getContentPane().add(prev);
-//		frame1.getContentPane().add(subdeets);
+		del.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int response = JOptionPane.showConfirmDialog(frame1,"Are you sure you want to delete ?","Delete ?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if(response == JOptionPane.YES_OPTION)
+				{
+					try {
+						PreparedStatement p4 = con.prepareStatement("delete from course "
+								+ "where branch = ? and name = ? and semester = ?");
+						p4.setString(1, chosen_b);
+						p4.setString(2, course);
+						p4.setInt(3, chosen_sem); 
+						  
+						// int i=p4.executeUpdate();  
+						// System.out.println(i+" records deleted");  
+					}
+					catch(Exception ex) {
+						System.err.println(ex); 
+					}
+					frame1.dispose();
+					main.setVisible(true);
+					JOptionPane.showMessageDialog(main,"Selected Record has been deleted.");  
+				}				
+			}
+		});
+		prev.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame1.dispose();
+				main.setVisible(true);				
+			}
+		});
+
 		subdeets.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame3 = new JFrame("Subject Details");
 				subjdet = new JTextArea(10, 100);
-				frame3.getContentPane().add(subjdet);
+//				frame3.getContentPane().add(subjdet);
 				String code = null;
 				String subject_details = null;
 				int show_credits = 0;
 				frame1.dispose();
 				frame2.dispose();
 				try {
-					PreparedStatement p3 = con.prepareStatement("select * from course"
-							+ " where branch = ? and name = ?");
+					PreparedStatement p3 = con.prepareStatement("select code,credits from course"
+							+ " where branch = ? and name = ? and semester = ?");
 					p3.setString(1, chosen_b);
 					p3.setString(2, course);
+					p3.setInt(3, chosen_sem);
 					ResultSet details = p3.executeQuery();
 					while(details.next()) {
 						code = (String) details.getString(1);
-						show_credits = details.getInt(3);
+						show_credits = details.getInt(4);
+						subject_details = "Subject Code: " + code + "\nSubject Name: " + 
+								course + "\nSemester: " + chosen_sem + "\nCredits: " + show_credits 
+								+ "\nBranch: " + chosen_b;
+						subjdet.setText(subject_details);
+						JOptionPane.showMessageDialog(null, "Retrieved data succesfully.","Record Retrieved",
+								JOptionPane.INFORMATION_MESSAGE);
 					} 
-					subject_details = "Subject Code: " + code + "\nSubject Name: " + 
-							course + "\nSemester: " + chosen_sem + "\nCredits: " + show_credits 
-							+ "\nBranch: " + chosen_b;
-					subjdet.append(subject_details);
 					frame3.getContentPane().add(subjdet);
 					frame3.setLayout(new FlowLayout());
 					frame3.setVisible(true);
@@ -196,8 +224,42 @@ public class MainFrame2 implements ActionListener
 					
 					}
 					catch(Exception ex) {
-						System.err.println(ex);				
+						JOptionPane.showMessageDialog(null, ex.getMessage(),"Error",
+								JOptionPane.ERROR_MESSAGE);				
 					}
+				
+			}
+			
+		});
+		
+		close.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int final_credits = 0;
+				try {
+					PreparedStatement p5 = con.prepareStatement("select sum(credits) from course where "
+							+ "semester = ? and branch = ? group by semester");
+					p5.setInt(1, chosen_sem);
+					p5.setString(2, chosen_b);
+					ResultSet rs_credits = p5.executeQuery();
+					while(rs_credits.next())
+						final_credits = rs_credits.getInt(1);
+					System.out.println("Final credits = " + final_credits);
+				}
+				catch(Exception ex) {
+					System.err.println(ex);
+				}
+				if (final_credits != 25) {
+					String wrong_credits = "The final credit count does not add up to 25. It is: " + final_credits + " Do you still want to close?";
+					int credit_response = JOptionPane.showConfirmDialog(frame1,wrong_credits,"Credits may be wrong",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+					if(credit_response == JOptionPane.YES_OPTION) {
+						System.exit(0);
+					}
+					
+				}
+				else {
+					JOptionPane.showMessageDialog(frame1, "Thank you. Your changes have been saved.");
+					System.exit(0);		
+				}
 				
 			}
 			
@@ -266,40 +328,20 @@ public class MainFrame2 implements ActionListener
 		app.main.setVisible(true);
 //		app.frame1.setVisible(false);
 		app.frame2.setVisible(false);
-		app.frame3.setVisible(false);
+//		app.frame3.setVisible(false);
 	}
 	
 	public void actionPerformed(ActionEvent evt)
 	{
-		if(evt.getSource() == del)
-		{
-			int response = JOptionPane.showConfirmDialog(frame1,"Are you sure you want to delete ?","Delete ?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if(response == JOptionPane.YES_OPTION)
-			{
-				try {
-					PreparedStatement p4 = con.prepareStatement("delete from course "
-							+ "where branch = ? and name = ? and semester = ?");
-					p4.setString(1, chosen_b);
-					p4.setString(2, course);
-					p4.setInt(3, chosen_sem); 
-					  
-					// int i=p4.executeUpdate();  
-					// System.out.println(i+" records deleted");  
-				}
-				catch(Exception ex) {
-					System.err.println(ex); 
-				}
-				frame1.dispose();
-				main.setVisible(true);
-				JOptionPane.showMessageDialog(main,"Selected Record has been deleted.");  
-			}
-		}
+//		if(evt.getSource() == del)
+//		{ 
+//			
+//		}
 		
-		if(evt.getSource() == prev)
-		{
-			frame1.dispose();
-			main.setVisible(true);
-		}
+//		if(evt.getSource() == prev)
+//		{
+//			
+//		}
 //		
 //		if(evt.getSource() == subdeets)
 //		{
@@ -334,7 +376,7 @@ public class MainFrame2 implements ActionListener
 							System.err.println(ex); 
 						}
 					}
-				}
+				} 
 			}
 			catch(NumberFormatException e)
 			{

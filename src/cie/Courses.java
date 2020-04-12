@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 
 public class Courses {
 
@@ -44,5 +45,15 @@ public class Courses {
 		JLabel lblNewLabel = new JLabel("New label");
 		lblNewLabel.setBounds(55, 92, 70, 15);
 		frame.getContentPane().add(lblNewLabel);
+		
+		JTextArea txtrXhdjhvkjbkjbjhcjvvmj = new JTextArea();
+		txtrXhdjhvkjbkjbjhcjvvmj.setText("xhdjhvkjbkjbjhcjvvmj");
+		txtrXhdjhvkjbkjbjhcjvvmj.setBounds(12, 178, 220, 66);
+		frame.getContentPane().add(txtrXhdjhvkjbkjbjhcjvvmj);
+		
+		JTextArea txtrHgcvjhkbjnjhvh = new JTextArea();
+		txtrHgcvjhkbjnjhvh.setText("hgcvjhkbjnjhvh");
+		txtrHgcvjhkbjnjhvh.setBounds(89, 178, 1, 15);
+		frame.getContentPane().add(txtrHgcvjhkbjnjhvh);
 	}
 }
