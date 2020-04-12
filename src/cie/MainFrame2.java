@@ -142,6 +142,7 @@ public class MainFrame2 {
 		});
 		del.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				course = (String) course_choice.getSelectedItem();
 				int response = JOptionPane.showConfirmDialog(frame1,"Are you sure you want to delete ?","Delete ?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if(response == JOptionPane.YES_OPTION)
 				{

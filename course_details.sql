@@ -1,4 +1,3 @@
-begin
 create table course (code varchar(10),name varchar(60),semester int(1),credits int(2),branch varchar(3), primary key(code));
 insert into course(code,name,semester,credits,branch) values 
 ('IS31','Engineering Mathematics - III',3,4,'ISE'),
@@ -91,5 +90,3 @@ insert into course(code,name,semester,credits,branch) values
 ('CSIN','Internship/Departmental Elective',8,4,'CSE'),
 ('CSP','Project Work',8,16,'CSE'),
 ('CSEAC','Extra-Curricular/CoCurricular Activities',8,2,'CSE');
-end;
-/
