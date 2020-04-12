@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
+import javax.swing.JButton;
 
 public class Courses {
 
@@ -55,5 +56,9 @@ public class Courses {
 		txtrHgcvjhkbjnjhvh.setText("hgcvjhkbjnjhvh");
 		txtrHgcvjhkbjnjhvh.setBounds(89, 178, 1, 15);
 		frame.getContentPane().add(txtrHgcvjhkbjnjhvh);
+		
+		JButton btnNewButton = new JButton("New button");
+		btnNewButton.setBounds(179, 204, 117, 25);
+		frame.getContentPane().add(btnNewButton);
 	}
 }

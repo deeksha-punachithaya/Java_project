@@ -1,18 +1,12 @@
 package cie;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-
 import java.sql.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class MainFrame2 implements ActionListener
-{
+public class MainFrame2 {
 	JFrame main;
 	JLabel branchl,seml;
 	String[] branches = {"ISE","CSE"};
@@ -21,20 +15,16 @@ public class MainFrame2 implements ActionListener
 	JButton next1;
 	
 	JFrame frame1;
-	JLabel coursel; 
-	//return courses from database as array
-	String[] courses = null;
+	JLabel coursel, subject_label; 
 	JComboBox<String> course_choice = null;
 	String course;
 	JButton update,del,prev,subdeets, close;
 	
 	JFrame frame2;
-	JLabel coursenamel,semesterl,credsl;
+	JLabel coursenamel,semesterl,credsl, creditsl;
 	JTextField credsf;
 	JTextArea coursenamef, semesterf;
-	// String[] type = {"Mandatory","Elective"};
-	// final JComboBox<String> type_choice;
-	JButton confirm, cancel;
+	JButton confirm, cancel, back;
 	
 	JFrame frame3;
 	JScrollPane scrollPane = null;
@@ -104,7 +94,7 @@ public class MainFrame2 implements ActionListener
 				frame1.getContentPane().add(subdeets);
 				frame1.getContentPane().add(close);
 				frame1.setVisible(true);
-				frame1.setSize(500,200);
+				frame1.setSize(515,225);
 				frame1.setLayout(null);
 			}
 		});
@@ -114,18 +104,9 @@ public class MainFrame2 implements ActionListener
 		main.getContentPane().add(seml);
 		main.getContentPane().add(sem_choice);
 		main.getContentPane().add(next1);
-		
-		
-//		frame1 = new JFrame("Available Courses");
-//		frame1.setBounds(100, 100, 462, 225);
-//		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		frame1.getContentPane().setLayout(null);
-		
 		coursel = new JLabel("All courses");
 		coursel.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		coursel.setBounds(25, 20, 117, 16);
-//		course_choice = new JComboBox<String>();
-//		course_choice.setBounds(150, 17, 350, 27);
 		update = new JButton("Update");
 		update.setBounds(50, 75, 175, 29);
 		del = new JButton("Delete");
@@ -171,8 +152,8 @@ public class MainFrame2 implements ActionListener
 						p4.setString(2, course);
 						p4.setInt(3, chosen_sem); 
 						  
-						// int i=p4.executeUpdate();  
-						// System.out.println(i+" records deleted");  
+						int i=p4.executeUpdate();  
+						System.out.println(i+" records deleted");  
 					}
 					catch(Exception ex) {
 						System.err.println(ex); 
@@ -193,34 +174,47 @@ public class MainFrame2 implements ActionListener
 		subdeets.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame3 = new JFrame("Subject Details");
-				subjdet = new JTextArea(10, 100);
-//				frame3.getContentPane().add(subjdet);
-				String code = null;
-				String subject_details = null;
-				int show_credits = 0;
-				frame1.dispose();
-				frame2.dispose();
+				subjdet = new JTextArea();
+				
+				subject_label = new JLabel("Subject Details: ");
+				String subject_details;
+				ResultSet details = null;
+				course = (String) course_choice.getSelectedItem();
+				String details_string = "select code,credits from course where branch = ? and name = ? and semester = ?";
 				try {
-					PreparedStatement p3 = con.prepareStatement("select code,credits from course"
-							+ " where branch = ? and name = ? and semester = ?");
+					PreparedStatement p3 = con.prepareStatement(details_string);
 					p3.setString(1, chosen_b);
 					p3.setString(2, course);
 					p3.setInt(3, chosen_sem);
-					ResultSet details = p3.executeQuery();
+					details = p3.executeQuery();
+					subjdet.setText(null);
+
 					while(details.next()) {
-						code = (String) details.getString(1);
-						show_credits = details.getInt(4);
-						subject_details = "Subject Code: " + code + "\nSubject Name: " + 
-								course + "\nSemester: " + chosen_sem + "\nCredits: " + show_credits 
+						
+						subject_details = "\nSubject Code: " + details.getString(1) + "\nSubject Name: " + 
+								course + "\nSemester: " + chosen_sem + "\nCredits: " + details.getInt(2) 
 								+ "\nBranch: " + chosen_b;
-						subjdet.setText(subject_details);
+						subjdet.append(subject_details);
 						JOptionPane.showMessageDialog(null, "Retrieved data succesfully.","Record Retrieved",
 								JOptionPane.INFORMATION_MESSAGE);
-					} 
+						} 
+					frame1.dispose();
+					frame2.dispose();
+					frame3.getContentPane().add(subject_label);
 					frame3.getContentPane().add(subjdet);
+					back = new JButton("Back");
+					back.setBounds(300, 204, 117, 25);
+					back.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							frame3.dispose();
+							frame1.setVisible(true);
+						}
+						
+					});
+					frame3.getContentPane().add(back);
 					frame3.setLayout(new FlowLayout());
 					frame3.setVisible(true);
-					frame3.setSize(500,300);
+					frame3.setSize(300,300);
 					
 					}
 					catch(Exception ex) {
@@ -266,14 +260,20 @@ public class MainFrame2 implements ActionListener
 		});
 		
 		
+		
+		
 		frame2 = new JFrame("Update Course Details");
 		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame2.setBounds(100, 100, 450, 300);
 		frame2.getContentPane().setLayout(null);
 		
-		coursenamel = new JLabel("Course name");
+		coursenamel = new JLabel("Course");
 		coursenamel.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-		coursenamel.setBounds(16, 28, 104, 16);
+		coursenamel.setBounds(50, 28, 104, 16);
+		creditsl = new JLabel("Credits");
+		creditsl.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+		creditsl.setBounds(50, 65, 104, 16);
+
 
 		coursenamef = new JTextArea();
 		coursenamef.setBounds(184, 18, 244, 26);
@@ -282,7 +282,7 @@ public class MainFrame2 implements ActionListener
 		semesterf.setBounds(184, 57, 244, 27);
 		credsl = new JLabel("Credits");
 		credsl.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-		credsl.setBounds(16, 169, 104, 16);
+		credsl.setBounds(50, 169, 104, 16);
 		credsf = new JTextField(2);
 		credsf.setBounds(184, 165, 244, 26);
 		confirm = new JButton("Confirm");
@@ -291,26 +291,61 @@ public class MainFrame2 implements ActionListener
 		cancel = new JButton("Cancel");
 		cancel.setFont(new Font("Times New Roman", Font.PLAIN, 18));
 		cancel.setBounds(311, 223, 117, 29);
-		confirm.addActionListener(this);
-		cancel.addActionListener(this);
+		confirm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try
+				{
+					int credits = Integer.parseInt(credsf.getText());
+					if(credits <=0 || credits >6)
+						throw new NumberFormatException();
+					else
+					{
+						int response = JOptionPane.showConfirmDialog(frame2,"Are you sure you want to update and proceed ?","Save Changes ?",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+						if(response == JOptionPane.YES_OPTION)
+						{
+							try {
+								PreparedStatement p1 = con.prepareStatement("update course set credits = ? where name = ? and branch = ?");
+								p1.setInt(1, credits);
+								p1.setString(2, course);
+								p1.setString(3, chosen_b);
+								int i = p1.executeUpdate();
+								String affected_rows = "No. of rows affected: " + i;
+								System.out.println(affected_rows);
+								frame2.dispose();
+								frame1.setVisible(true);
+								JOptionPane.showMessageDialog(frame1,affected_rows);
+							}	
+							catch(Exception ex) {
+								System.err.println(ex); 
+							}
+						}
+					} 
+				}
+				catch(NumberFormatException ex)
+				{
+					JOptionPane.showMessageDialog(frame2,"Invalid no. of Credits","Error",JOptionPane.ERROR_MESSAGE);
+				}				
+			}
+		});
+		cancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame2.dispose();
+				frame1.setVisible(true);
+				frame1.setVisible(true);				
+			}
+			
+		});
 		
 		frame2.getContentPane().add(coursenamel);
 		frame2.getContentPane().add(coursenamef);
 		coursenamef.setEnabled(false);
-		frame2.getContentPane().add(semesterl);
+		frame2.getContentPane().add(creditsl);
 		frame2.getContentPane().add(semesterf);
 		semesterf.setEnabled(false);
 		frame2.getContentPane().add(credsl);
 		frame2.getContentPane().add(credsf);
 		frame2.getContentPane().add(confirm);
 		frame2.getContentPane().add(cancel);
-		
-// 		subjdet = new JTextArea();
-//		final JScrollPane scrollPane = null;
-		// subjdet.setEditable(false);		
-		//add frame 3, text area with subject details
-		//check total credits add upto 25
-		
 	}
 	
 	public static void main(String[] args) throws SQLException, ClassNotFoundException
@@ -329,66 +364,6 @@ public class MainFrame2 implements ActionListener
 //		app.frame1.setVisible(false);
 		app.frame2.setVisible(false);
 //		app.frame3.setVisible(false);
-	}
-	
-	public void actionPerformed(ActionEvent evt)
-	{
-//		if(evt.getSource() == del)
-//		{ 
-//			
-//		}
-		
-//		if(evt.getSource() == prev)
-//		{
-//			
-//		}
-//		
-//		if(evt.getSource() == subdeets)
-//		{
-//					
-//	}
-		
-		if(evt.getSource() == confirm)
-		{
-			try
-			{
-				int credits = Integer.parseInt(credsf.getText());
-				if(credits <=0 || credits >6)
-					throw new NumberFormatException();
-				else
-				{
-					int response = JOptionPane.showConfirmDialog(frame2,"Are you sure you want to update and proceed ?","Save Changes ?",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
-					if(response == JOptionPane.YES_OPTION)
-					{
-						try {
-							PreparedStatement p1 = con.prepareStatement("update course set credits = ? where name = ? and branch = ?");
-							p1.setInt(1, credits);
-							p1.setString(2, course);
-							p1.setString(3, chosen_b);
-							int i = p1.executeUpdate();
-							String affected_rows = "No. of rows affected: " + i;
-							System.out.println(affected_rows);
-							frame2.dispose();
-							frame1.setVisible(true);
-							JOptionPane.showMessageDialog(frame1,affected_rows);
-						}	
-						catch(Exception ex) {
-							System.err.println(ex); 
-						}
-					}
-				} 
-			}
-			catch(NumberFormatException e)
-			{
-				JOptionPane.showMessageDialog(frame2,"Invalid no. of Credits","Error",JOptionPane.ERROR_MESSAGE);
-			}
-		}
-		
-		if(evt.getSource() == cancel)
-		{
-			frame2.dispose();
-			frame1.setVisible(true);
-			frame1.setVisible(true);
-		}
+
 	}
 }
