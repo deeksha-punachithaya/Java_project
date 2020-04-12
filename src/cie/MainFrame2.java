@@ -82,18 +82,29 @@ public class MainFrame2 implements ActionListener
 				    rs = pstmt.executeQuery();
 				    System.out.println("SQL query works");
 				    course_choice = new JComboBox<String>();
+					course_choice.setBounds(150, 17, 350, 27);
+
 				    while(rs.next()) {
 				    	 course_choice.addItem(rs.getString("name"));
 					}   
-				    frame1.add(coursel);
-				    frame1.add(course_choice);
+				    
 				}
 				catch(Exception ex) {
 					System.err.println(ex);
 				}
+				frame1 = new JFrame("Available Courses");
+				frame1.setBounds(100, 100, 462, 225);
+				frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame1.getContentPane().setLayout(null);
+				frame1.getContentPane().add(coursel);
+			    frame1.getContentPane().add(course_choice);
+			    frame1.getContentPane().add(update);
+				frame1.getContentPane().add(del);
+				frame1.getContentPane().add(prev);
+				frame1.getContentPane().add(subdeets);
 				frame1.setVisible(true);
-				frame1.setSize(800,200);
-				frame1.setLayout(new GridLayout(3,8));
+				frame1.setSize(500,200);
+				frame1.setLayout(null);
 			}
 		});
 		
@@ -104,24 +115,24 @@ public class MainFrame2 implements ActionListener
 		main.getContentPane().add(next1);
 		
 		
-		frame1 = new JFrame("Available Courses");
-		frame1.setBounds(100, 100, 462, 225);
-		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame1.getContentPane().setLayout(null);
+//		frame1 = new JFrame("Available Courses");
+//		frame1.setBounds(100, 100, 462, 225);
+//		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame1.getContentPane().setLayout(null);
 		
 		coursel = new JLabel("All courses");
 		coursel.setFont(new Font("Times New Roman", Font.PLAIN, 20));
-		coursel.setBounds(6, 20, 117, 16);
-		course_choice = new JComboBox<String>();
-		course_choice.setBounds(219, 17, 212, 27);
+		coursel.setBounds(25, 20, 117, 16);
+//		course_choice = new JComboBox<String>();
+//		course_choice.setBounds(150, 17, 350, 27);
 		update = new JButton("Update");
-		update.setBounds(6, 89, 117, 29);
+		update.setBounds(50, 89, 175, 29);
 		del = new JButton("Delete");
-		del.setBounds(301, 89, 130, 29);
+		del.setBounds(270, 89, 175, 29);
 		prev = new JButton("Previous");
-		prev.setBounds(6, 130, 117, 29);
+		prev.setBounds(50, 130, 175, 29);
 		subdeets = new JButton("Subject Details");
-		subdeets.setBounds(301, 130, 130, 29);
+		subdeets.setBounds(270, 130, 175, 29);
 		update.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame1.dispose();
@@ -148,16 +159,20 @@ public class MainFrame2 implements ActionListener
 		del.addActionListener(this);
 		prev.addActionListener(this);
 		
-		frame1.getContentPane().add(coursel);
-		frame1.getContentPane().add(course_choice);
-		frame1.getContentPane().add(update);
-		frame1.getContentPane().add(del);
-		frame1.getContentPane().add(prev);
-		frame1.getContentPane().add(subdeets);
+		// frame1.getContentPane().add(coursel);
+		// frame1.getContentPane().add(course_choice);
+//		frame1.getContentPane().add(update);
+//		frame1.getContentPane().add(del);
+//		frame1.getContentPane().add(prev);
+//		frame1.getContentPane().add(subdeets);
 		subdeets.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				subjdet = new JTextArea();
+				frame3 = new JFrame("Subject Details");
+				subjdet = new JTextArea(10, 100);
+				frame3.getContentPane().add(subjdet);
+				String code = null;
 				String subject_details = null;
+				int show_credits = 0;
 				frame1.dispose();
 				frame2.dispose();
 				try {
@@ -167,22 +182,23 @@ public class MainFrame2 implements ActionListener
 					p3.setString(2, course);
 					ResultSet details = p3.executeQuery();
 					while(details.next()) {
-						String code = (String) details.getString(1);
-						int show_credits = details.getInt(3);
-						subject_details = "Subject Code: " + code + "\nSubject Name: " + 
-						course + "\nSemester: " + chosen_sem + "\nCredits: " + show_credits 
-						+ "\nBranch: " + chosen_b;
-						subjdet.setText(subject_details);
+						code = (String) details.getString(1);
+						show_credits = details.getInt(3);
+					} 
+					subject_details = "Subject Code: " + code + "\nSubject Name: " + 
+							course + "\nSemester: " + chosen_sem + "\nCredits: " + show_credits 
+							+ "\nBranch: " + chosen_b;
+					subjdet.append(subject_details);
+					frame3.getContentPane().add(subjdet);
+					frame3.setLayout(new FlowLayout());
+					frame3.setVisible(true);
+					frame3.setSize(500,300);
+					
 					}
-					scrollPane = new JScrollPane(subjdet);
-					frame3.add(scrollPane);
-				}
 					catch(Exception ex) {
 						System.err.println(ex);				
 					}
-				frame3.setVisible(true);
-				frame3.setSize(800,200);
-				frame3.setLayout(new GridLayout(5,8));
+				
 			}
 			
 		});
@@ -227,7 +243,6 @@ public class MainFrame2 implements ActionListener
 		frame2.getContentPane().add(confirm);
 		frame2.getContentPane().add(cancel);
 		
-		frame3 = new JFrame("Subject Details");
 // 		subjdet = new JTextArea();
 //		final JScrollPane scrollPane = null;
 		// subjdet.setEditable(false);		
@@ -249,7 +264,7 @@ public class MainFrame2 implements ActionListener
 		}
 		MainFrame2 app = new MainFrame2();
 		app.main.setVisible(true);
-		app.frame1.setVisible(false);
+//		app.frame1.setVisible(false);
 		app.frame2.setVisible(false);
 		app.frame3.setVisible(false);
 	}
@@ -261,7 +276,22 @@ public class MainFrame2 implements ActionListener
 			int response = JOptionPane.showConfirmDialog(frame1,"Are you sure you want to delete ?","Delete ?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if(response == JOptionPane.YES_OPTION)
 			{
-				//add function
+				try {
+					PreparedStatement p4 = con.prepareStatement("delete from course "
+							+ "where branch = ? and name = ? and semester = ?");
+					p4.setString(1, chosen_b);
+					p4.setString(2, course);
+					p4.setInt(3, chosen_sem); 
+					  
+					// int i=p4.executeUpdate();  
+					// System.out.println(i+" records deleted");  
+				}
+				catch(Exception ex) {
+					System.err.println(ex); 
+				}
+				frame1.dispose();
+				main.setVisible(true);
+				JOptionPane.showMessageDialog(main,"Selected Record has been deleted.");  
 			}
 		}
 		
@@ -294,9 +324,11 @@ public class MainFrame2 implements ActionListener
 							p1.setString(2, course);
 							p1.setString(3, chosen_b);
 							int i = p1.executeUpdate();
-							System.out.println("No. of rows affected: " + i);
+							String affected_rows = "No. of rows affected: " + i;
+							System.out.println(affected_rows);
 							frame2.dispose();
 							frame1.setVisible(true);
+							JOptionPane.showMessageDialog(frame1,affected_rows);
 						}	
 						catch(Exception ex) {
 							System.err.println(ex); 
@@ -317,11 +349,4 @@ public class MainFrame2 implements ActionListener
 			frame1.setVisible(true);
 		}
 	}
-	
-//	public void DisplaySubDeets()
-//	{
-//		
-//		
-//	}
-
 }
